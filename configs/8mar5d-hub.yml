@@ -1,0 +1,19 @@
+logging:
+  file: "./bin/8mar5d-hub.log"
+  level: "debug"
+
+http:
+  host: "0.0.0.0"
+  port: 6080
+  bodyLimit: 1048576
+
+clients:
+  nut:
+      host: "127.0.0.1"
+      port: 3493
+      username: "8mar5d-hub"
+      password: "1234567890"
+
+metrics:
+  nut:
+    interval: "1s"

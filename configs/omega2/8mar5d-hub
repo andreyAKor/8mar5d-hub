@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+USE_PROCD=1
+
+NAME=8mar5d-hub
+PROG=/root/8mar5d-hub
+OPT_CONFIG=/root/8mar5d-hub.yml
+
+boot() {
+    start
+}
+
+start_service() {
+    procd_open_instance
+    procd_set_param command "$PROG" --config=$OPT_CONFIG
+    procd_close_instance
+}
+
+stop() {
+    service_stop $PROG
+}
+
+reload() {
+    service_reload $PROG
+}

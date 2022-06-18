@@ -1,0 +1,13 @@
+[Unit]
+Description=8mar5d-hub
+
+[Service]
+StartLimitInterval=1
+StartLimitBurst=1
+ExecStart=/opt/8mar5d-hub/8mar5d-hub --config=/opt/8mar5d-hub/8mar5d-hub.yml
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
