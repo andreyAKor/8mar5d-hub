@@ -39,16 +39,13 @@ type Config struct {
 	}
 
 	Clients struct {
-		NUT struct {
-			Host     string
-			Port     int
-			Username string
-			Password string
+		Devices struct {
+			Host string
 		}
 	}
 
 	Metrics struct {
-		NUT struct {
+		Devices struct {
 			Interval string
 		}
 	}

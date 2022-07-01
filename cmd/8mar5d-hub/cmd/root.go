@@ -12,11 +12,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/andreyAKor/8mar5d-hub/internal/app"
+	clientsDevices "github.com/andreyAKor/8mar5d-hub/internal/clients/devices"
 	"github.com/andreyAKor/8mar5d-hub/internal/configs"
-	clientsNut "github.com/andreyAKor/8mar5d-hub/internal/http/clients/nut"
 	"github.com/andreyAKor/8mar5d-hub/internal/http/server"
 	"github.com/andreyAKor/8mar5d-hub/internal/logging"
-	metricsNut "github.com/andreyAKor/8mar5d-hub/internal/metrics/nut"
+	metricsSensors "github.com/andreyAKor/8mar5d-hub/internal/metrics/sensors"
 )
 
 var cfgFile string
@@ -65,28 +65,22 @@ func run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "init logging failed")
 	}
 
-	// Init clients
-	nutClient, err := clientsNut.New(
-		cfg.Clients.NUT.Host,
-		cfg.Clients.NUT.Port,
-		cfg.Clients.NUT.Username,
-		cfg.Clients.NUT.Password,
-	)
+	devicesClient, err := clientsDevices.New(cfg.Clients.Devices.Host)
 	if err != nil {
-		log.Fatal().Err(err).Msg("can't initialize NUT client")
+		log.Fatal().Err(err).Msg("can't initialize devices client")
 	}
 
 	// Init http-server
-	srv, err := server.New(cfg.HTTP.Host, cfg.HTTP.Port, cfg.HTTP.BodyLimit, nutClient)
+	srv, err := server.New(cfg.HTTP.Host, cfg.HTTP.Port, cfg.HTTP.BodyLimit, devicesClient)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't initialize http-server")
 	}
 
 	// Init metrics
-	nutMetrics, err := metricsNut.New(cfg.Metrics.NUT.Interval, nutClient)
+	sensorsMetrics, err := metricsSensors.New(cfg.Metrics.Devices.Interval, devicesClient)
 
 	// Init and run app
-	a, err := app.New(srv, nutMetrics)
+	a, err := app.New(srv, sensorsMetrics)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't initialize app")
 	}

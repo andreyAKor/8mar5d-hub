@@ -7,20 +7,20 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/andreyAKor/8mar5d-hub/internal/http/server"
-	metricsNut "github.com/andreyAKor/8mar5d-hub/internal/metrics/nut"
+	metricsSensors "github.com/andreyAKor/8mar5d-hub/internal/metrics/sensors"
 )
 
 var _ io.Closer = (*App)(nil)
 
 type App struct {
-	srv        *server.Server
-	nutMetrics *metricsNut.Metric
+	srv            *server.Server
+	sensorsMetrics *metricsSensors.Metric
 }
 
-func New(srv *server.Server, nutMetrics *metricsNut.Metric) (*App, error) {
+func New(srv *server.Server, sensorsMetrics *metricsSensors.Metric) (*App, error) {
 	return &App{
-		srv:        srv,
-		nutMetrics: nutMetrics,
+		srv:            srv,
+		sensorsMetrics: sensorsMetrics,
 	}, nil
 }
 
@@ -32,7 +32,7 @@ func (a *App) Run(ctx context.Context) error {
 		}
 	}()
 	go func() {
-		if err := a.nutMetrics.Run(ctx); err != nil {
+		if err := a.sensorsMetrics.Run(ctx); err != nil {
 			log.Fatal().Err(err).Msg("nut metrics running fail")
 		}
 	}()

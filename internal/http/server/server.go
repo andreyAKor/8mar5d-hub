@@ -11,18 +11,22 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/andreyAKor/8mar5d-hub/internal/clients/devices"
+
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 
-	"github.com/andreyAKor/8mar5d-hub/internal/http/clients/nut"
-	handlerGet "github.com/andreyAKor/8mar5d-hub/internal/http/server/handlers/get"
+	handlerDevicesInfo "github.com/andreyAKor/8mar5d-hub/internal/http/server/handlers/devices/info"
+	handlerDevicesSensorDHT11 "github.com/andreyAKor/8mar5d-hub/internal/http/server/handlers/devices/sensor/DHT11"
+	handlerDevicesSensorMQ2 "github.com/andreyAKor/8mar5d-hub/internal/http/server/handlers/devices/sensor/MQ2"
+	handlerDevicesSensors "github.com/andreyAKor/8mar5d-hub/internal/http/server/handlers/devices/sensors"
 )
 
 var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-	Namespace: "8mar5d-hub",
+	Namespace: "mar8d5_hub",
 	Name:      "http_response_time_seconds",
 	Help:      "Duration of HTTP requests.",
 	Buckets:   []float64{0.005, 0.01, 0.05, 0.1, 0.5, 1, 5},
@@ -40,18 +44,18 @@ type Server struct {
 	port      int
 	bodyLimit int
 
-	nutClient *nut.Client
+	devicesClient *devices.Client
 
 	server *http.Server
 	ctx    context.Context
 }
 
-func New(host string, port int, bodyLimit int, nutClient *nut.Client) (*Server, error) {
+func New(host string, port, bodyLimit int, devicesClient *devices.Client) (*Server, error) {
 	return &Server{
-		host:      host,
-		port:      port,
-		bodyLimit: bodyLimit,
-		nutClient: nutClient,
+		host:          host,
+		port:          port,
+		bodyLimit:     bodyLimit,
+		devicesClient: devicesClient,
 	}, nil
 }
 
@@ -61,7 +65,10 @@ func (s *Server) Run(ctx context.Context) error {
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
-	mux.HandleFunc("/get", s.method(s.toJSON(handlerGet.New(s.nutClient).Handle()), "GET"))
+	mux.HandleFunc("/devices/info", s.method(s.toJSON(handlerDevicesInfo.New(s.devicesClient).Handle()), "GET"))
+	mux.HandleFunc("/devices/sensors", s.method(s.toJSON(handlerDevicesSensors.New(s.devicesClient).Handle()), "GET"))
+	mux.HandleFunc("/devices/sensor/DHT-11", s.method(s.toJSON(handlerDevicesSensorDHT11.New(s.devicesClient).Handle()), "GET"))
+	mux.HandleFunc("/devices/sensor/MQ-2", s.method(s.toJSON(handlerDevicesSensorMQ2.New(s.devicesClient).Handle()), "GET"))
 
 	// middlewares
 	handler := s.metrics(mux)

@@ -8,12 +8,9 @@ http:
   bodyLimit: 1048576
 
 clients:
-  nut:
-      host: "127.0.0.1"
-      port: 3493
-      username: "8mar5d-hub"
-      password: "1234567890"
+  devices:
+      host: "/dev/ttyUSB0"
 
 metrics:
-  nut:
+  devices:
     interval: "1s"

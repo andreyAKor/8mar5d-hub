@@ -3,7 +3,7 @@ GOBIN=$(GOBASE)/bin
 
 build:
 	@# for current arch. system
-	@go build -ldflags="-s -w" -o '$(GOBIN)/8mar5d-hub' ./cmd/8mar5d-hub/main.go || exit
+	@CGO_ENABLED=1 go build -ldflags="-s -w" -o '$(GOBIN)/8mar5d-hub' ./cmd/8mar5d-hub/main.go || exit
 	@# for MIPS arch. system on Onion Omega2/Omega2+
 	@GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags="-s -w" -o '$(GOBIN)/mips/8mar5d-hub' ./cmd/8mar5d-hub/main.go || exit
 
